@@ -79,7 +79,12 @@ pub fn build(flake_uri: &str, nix_options: &NixOptions) -> Result<StorePath> {
 
 fn find_flake_attr(flake_uri: &str, nix_options: &NixOptions) -> Result<String> {
     fn full_uri(flake: &str, attr: &str) -> String {
-        format!("{flake}#{FLAKE_ATTR}.{attr}")
+        // `attr` may be a FQDN, in which case it must be quoted.
+        if attr.contains(".") {
+            format!("{flake}#{FLAKE_ATTR}.\"{attr}\"")
+        } else {
+            format!("{flake}#{FLAKE_ATTR}.{attr}")
+        }
     }
 
     let flake_uri = flake_uri.trim_end_matches('#');
